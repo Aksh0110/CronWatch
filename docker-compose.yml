@@ -1,0 +1,33 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: cronwatch_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cronwatch_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cronwatch_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/cronwatch
+      - APP_NAME=CronWatch
+    depends_on:
+      - mongodb
+    networks:
+      - cronwatch_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  cronwatch_network:
+    driver: bridge
