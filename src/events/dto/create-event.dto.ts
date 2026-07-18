@@ -22,10 +22,10 @@ export class CreateEventDto {
   @IsNotEmpty()
   status: string;
 
-  @ApiProperty({ example: '2026-07-18T12:00:00Z', description: 'Timestamp when the job started' })
+  @ApiProperty({ example: '2026-07-18T12:00:00Z', description: 'Timestamp when the job started', required: false })
   @IsDateString()
-  @IsNotEmpty()
-  startedAt: string;
+  @IsOptional()
+  startedAt?: string;
 
   @ApiProperty({ example: '2026-07-18T12:01:30Z', description: 'Timestamp when the job completed', required: false })
   @IsDateString()
@@ -41,4 +41,39 @@ export class CreateEventDto {
   @IsString()
   @IsOptional()
   message?: string;
+
+  @ApiProperty({ example: 'App Server 1', description: 'Name of the server', required: false })
+  @IsString()
+  @IsOptional()
+  serverName?: string;
+
+  @ApiProperty({ example: 'production', description: 'Server environment', required: false })
+  @IsString()
+  @IsOptional()
+  environment?: string;
+
+  @ApiProperty({ example: 'ec2-instance-1', description: 'Hostname of the server', required: false })
+  @IsString()
+  @IsOptional()
+  hostname?: string;
+
+  @ApiProperty({ example: 'customer-cron', description: 'PM2 process name', required: false })
+  @IsString()
+  @IsOptional()
+  processName?: string;
+
+  @ApiProperty({ example: '2026-07-18T12:01:30Z', description: 'Event timestamp', required: false })
+  @IsDateString()
+  @IsOptional()
+  timestamp?: string;
+
+  @ApiProperty({ example: '[booking-reminder-cron] Booking reminder starting...', description: 'Raw matched log line', required: false })
+  @IsString()
+  @IsOptional()
+  rawLog?: string;
+
+  @ApiProperty({ example: '{"type":"contains","pattern":"starting","status":"STARTED"}', description: 'Matched rule details', required: false })
+  @IsString()
+  @IsOptional()
+  matchedRule?: string;
 }

@@ -17,7 +17,7 @@ export class Execution {
   @Prop({ required: true })
   status: string;
 
-  @Prop({ required: true })
+  @Prop({ default: Date.now })
   startedAt: Date;
 
   @Prop()
@@ -28,6 +28,27 @@ export class Execution {
 
   @Prop()
   message: string;
+
+  @Prop()
+  serverName: string;
+
+  @Prop()
+  environment: string;
+
+  @Prop()
+  hostname: string;
+
+  @Prop()
+  processName: string;
+
+  @Prop()
+  timestamp: Date;
+
+  @Prop()
+  rawLog: string;
+
+  @Prop()
+  matchedRule: string;
 
   @Prop({ default: Date.now })
   createdAt: Date;

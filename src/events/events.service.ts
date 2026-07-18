@@ -14,7 +14,9 @@ export class EventsService {
   ) {}
 
   async create(dto: CreateEventDto): Promise<Execution> {
-    const started = new Date(dto.startedAt);
+    const started = dto.startedAt
+      ? new Date(dto.startedAt)
+      : (dto.timestamp ? new Date(dto.timestamp) : new Date());
     const completed = dto.completedAt ? new Date(dto.completedAt) : null;
     let duration = dto.duration;
 
