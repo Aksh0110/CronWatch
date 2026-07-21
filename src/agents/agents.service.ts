@@ -5,6 +5,7 @@ import { Agent, AgentDocument } from './schemas/agent.schema';
 import { Alert, AlertDocument } from '../alerts/schemas/alert.schema';
 import { RegisterAgentDto } from './dto/register-agent.dto';
 import { HeartbeatDto } from './dto/heartbeat.dto';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class AgentsService implements OnModuleInit, OnModuleDestroy {
@@ -13,6 +14,7 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @InjectModel(Agent.name) private agentModel: Model<AgentDocument>,
     @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
+    private readonly alertsService: AlertsService,
   ) {}
 
   onModuleInit() {
@@ -47,12 +49,52 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
       {
         status: 'ONLINE',
         lastHeartbeat: new Date(),
+        stats: dto.stats,
+        pm2: dto.pm2,
       },
       { new: true },
     );
 
     if (!agent) {
       throw new NotFoundException(`Agent with serverId ${dto.serverId} not found`);
+    }
+
+    // Process down/up alerting logic
+    if (dto.pm2) {
+      for (const proc of dto.pm2) {
+        if (proc.status !== 'online') {
+          // Process is down, check if unacknowledged alert already exists
+          const existingAlert = await this.alertModel.findOne({
+            serverId: dto.serverId,
+            type: 'PROCESS_DOWN',
+            jobName: proc.processName,
+            acknowledged: false,
+          }).exec();
+
+          if (!existingAlert) {
+            await this.alertsService.create({
+              type: 'PROCESS_DOWN',
+              serverId: dto.serverId,
+              jobName: proc.processName,
+              message: `PM2 process '${proc.processName}' on server '${agent.serverName || agent.serverId}' is down (Status: ${proc.status})`,
+              severity: 'CRITICAL',
+              acknowledged: false,
+              createdAt: new Date(),
+            });
+          }
+        } else {
+          // Process is healthy/online, auto-acknowledge/resolve any open PROCESS_DOWN alerts
+          await this.alertModel.updateMany(
+            {
+              serverId: dto.serverId,
+              type: 'PROCESS_DOWN',
+              jobName: proc.processName,
+              acknowledged: false,
+            },
+            { acknowledged: true },
+          ).exec();
+        }
+      }
     }
 
     return agent;
@@ -87,7 +129,7 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
       }).exec();
 
       if (!existingAlert) {
-        await this.alertModel.create({
+        await this.alertsService.create({
           type: 'HEARTBEAT_LOST',
           serverId: agent.serverId,
           message: alertMessage,

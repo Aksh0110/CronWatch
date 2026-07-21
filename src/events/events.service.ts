@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Execution, ExecutionDocument } from './schemas/execution.schema';
-import { Alert, AlertDocument } from '../alerts/schemas/alert.schema';
 import { CreateEventDto } from './dto/create-event.dto';
 import { GetExecutionsFilterDto } from './dto/get-executions-filter.dto';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectModel(Execution.name) private executionModel: Model<ExecutionDocument>,
-    @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
+    private readonly alertsService: AlertsService,
   ) {}
 
   async create(dto: CreateEventDto): Promise<Execution> {
@@ -37,7 +37,7 @@ export class EventsService {
     // Automatically trigger alert if job fails
     if (dto.status === 'FAILED') {
       const alertMsg = dto.message || `Cron job '${dto.jobName}' failed on server '${dto.serverId}'.`;
-      await this.alertModel.create({
+      await this.alertsService.create({
         type: 'JOB_FAILED',
         serverId: dto.serverId,
         jobName: dto.jobName,

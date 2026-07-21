@@ -3,14 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { Execution, ExecutionSchema } from './schemas/execution.schema';
-import { Alert, AlertSchema } from '../alerts/schemas/alert.schema';
+import { AlertsModule } from '../alerts/alerts.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Execution.name, schema: ExecutionSchema },
-      { name: Alert.name, schema: AlertSchema },
     ]),
+    AlertsModule,
   ],
   controllers: [EventsController],
   providers: [EventsService],
