@@ -5,6 +5,7 @@ import { Agent, AgentDocument } from './schemas/agent.schema';
 import { Alert, AlertDocument } from '../alerts/schemas/alert.schema';
 import { RegisterAgentDto } from './dto/register-agent.dto';
 import { HeartbeatDto } from './dto/heartbeat.dto';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class AgentsService implements OnModuleInit, OnModuleDestroy {
@@ -13,6 +14,7 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @InjectModel(Agent.name) private agentModel: Model<AgentDocument>,
     @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
+    private readonly alertsService: AlertsService,
   ) {}
 
   onModuleInit() {
@@ -70,7 +72,7 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
           }).exec();
 
           if (!existingAlert) {
-            await this.alertModel.create({
+            await this.alertsService.create({
               type: 'PROCESS_DOWN',
               serverId: dto.serverId,
               jobName: proc.processName,
@@ -127,7 +129,7 @@ export class AgentsService implements OnModuleInit, OnModuleDestroy {
       }).exec();
 
       if (!existingAlert) {
-        await this.alertModel.create({
+        await this.alertsService.create({
           type: 'HEARTBEAT_LOST',
           serverId: agent.serverId,
           message: alertMessage,

@@ -3,12 +3,23 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Alert, AlertDocument } from './schemas/alert.schema';
 import { GetAlertsFilterDto } from './dto/get-alerts-filter.dto';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class AlertsService {
   constructor(
     @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
+    private readonly settingsService: SettingsService,
   ) {}
+
+  async create(alertData: Partial<Alert>): Promise<Alert> {
+    const alert = await this.alertModel.create(alertData);
+    // Send email alert asynchronously to avoid blocking agent/event requests
+    this.settingsService.sendAlertEmail(alert).catch(err => {
+      console.error(`Failed to send alert email: ${err.message}`);
+    });
+    return alert;
+  }
 
   async findAll(filter: GetAlertsFilterDto): Promise<Alert[]> {
     const query: any = {};
