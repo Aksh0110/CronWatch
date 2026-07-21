@@ -28,6 +28,12 @@ export class Agent {
 
   @Prop({ default: Date.now })
   lastHeartbeat: Date;
+
+  @Prop({ type: Object, required: false })
+  stats?: Record<string, any>;
+
+  @Prop({ type: [Object], required: false })
+  pm2?: Array<Record<string, any>>;
 }
 
 export const AgentSchema = SchemaFactory.createForClass(Agent);
