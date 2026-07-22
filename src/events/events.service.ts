@@ -61,7 +61,14 @@ export class EventsService {
       query.jobName = filter.jobName;
     }
     if (filter.status) {
-      query.status = filter.status;
+      const statusVal = filter.status.toUpperCase();
+      if (statusVal === 'SUCCESS' || statusVal === 'COMPLETED') {
+        query.status = { $in: ['SUCCESS', 'COMPLETED'] };
+      } else if (statusVal === 'RUNNING' || statusVal === 'STARTED') {
+        query.status = { $in: ['RUNNING', 'STARTED'] };
+      } else {
+        query.status = filter.status;
+      }
     }
 
     return this.executionModel
