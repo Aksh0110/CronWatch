@@ -4,12 +4,14 @@ import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { GetExecutionsFilterDto } from './dto/get-executions-filter.dto';
 import { Execution } from './schemas/execution.schema';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Events & Executions')
 @Controller()
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
+  @Public()
   @Post('events')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Store an execution event', description: 'Records a cron job execution event, calculating duration and triggering alerts on failures' })
