@@ -71,11 +71,15 @@ export class EventsService {
       }
     }
 
-    return this.executionModel
+    const queryBuilder = this.executionModel
       .find(query)
       .sort({ createdAt: -1 })
-      .skip(filter.skip ?? 0)
-      .limit(filter.limit ?? 100)
-      .exec();
+      .skip(filter.skip ?? 0);
+
+    if (filter.limit !== undefined && filter.limit !== null) {
+      queryBuilder.limit(filter.limit);
+    }
+
+    return queryBuilder.exec();
   }
 }
