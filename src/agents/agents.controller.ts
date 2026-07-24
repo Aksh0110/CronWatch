@@ -4,12 +4,14 @@ import { AgentsService } from './agents.service';
 import { RegisterAgentDto } from './dto/register-agent.dto';
 import { HeartbeatDto } from './dto/heartbeat.dto';
 import { Agent } from './schemas/agent.schema';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Agents')
 @Controller('agents')
 export class AgentsController {
   constructor(private readonly agentsService: AgentsService) {}
 
+  @Public()
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Register a server agent', description: 'Registers a server agent or updates its information if it already exists' })
@@ -18,6 +20,7 @@ export class AgentsController {
     return this.agentsService.register(registerAgentDto);
   }
 
+  @Public()
   @Post('heartbeat')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send heartbeat', description: 'Updates the lastHeartbeat timestamp and sets status to ONLINE for a registered agent' })

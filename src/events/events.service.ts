@@ -61,14 +61,25 @@ export class EventsService {
       query.jobName = filter.jobName;
     }
     if (filter.status) {
-      query.status = filter.status;
+      const statusVal = filter.status.toUpperCase();
+      if (statusVal === 'SUCCESS' || statusVal === 'COMPLETED') {
+        query.status = { $in: ['SUCCESS', 'COMPLETED'] };
+      } else if (statusVal === 'RUNNING' || statusVal === 'STARTED') {
+        query.status = { $in: ['RUNNING', 'STARTED'] };
+      } else {
+        query.status = filter.status;
+      }
     }
 
-    return this.executionModel
+    const queryBuilder = this.executionModel
       .find(query)
       .sort({ createdAt: -1 })
-      .skip(filter.skip ?? 0)
-      .limit(filter.limit ?? 100)
-      .exec();
+      .skip(filter.skip ?? 0);
+
+    if (filter.limit !== undefined && filter.limit !== null) {
+      queryBuilder.limit(filter.limit);
+    }
+
+    return queryBuilder.exec();
   }
 }
