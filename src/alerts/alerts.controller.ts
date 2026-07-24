@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
 import { GetAlertsFilterDto } from './dto/get-alerts-filter.dto';
 import { Alert } from './schemas/alert.schema';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Alerts')
 @Controller('alerts')
@@ -17,6 +18,7 @@ export class AlertsController {
   }
 
   @Patch(':id/acknowledge')
+  @Roles('admin', 'write')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Acknowledge an alert', description: 'Marks an alert as acknowledged by its database identifier' })
   @ApiParam({ name: 'id', description: 'The unique ID of the alert' })

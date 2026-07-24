@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { UpdateSettingsDto, TestEmailDto } from './dto/update-settings.dto';
 import { Settings } from './schemas/settings.schema';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Settings')
 @Controller('settings')
@@ -17,6 +18,7 @@ export class SettingsController {
   }
 
   @Post()
+  @Roles('admin', 'write')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update notification and SMTP settings', description: 'Updates settings parameters in the database.' })
   @ApiResponse({ status: 200, description: 'Settings updated successfully.', type: Settings })
@@ -25,6 +27,7 @@ export class SettingsController {
   }
 
   @Post('test')
+  @Roles('admin', 'write')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send a test email', description: 'Attempts to send a test email to verify SMTP connections.' })
   @ApiResponse({ status: 200, description: 'Test email sent successfully.' })
