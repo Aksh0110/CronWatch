@@ -28,7 +28,8 @@ export class AlertsService {
       query.serverId = filter.serverId;
     }
     if (filter.jobName) {
-      query.jobName = filter.jobName;
+      const escapedJobName = filter.jobName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      query.jobName = { $regex: escapedJobName, $options: 'i' };
     }
     if (filter.severity) {
       query.severity = filter.severity;

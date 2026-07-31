@@ -58,7 +58,8 @@ export class EventsService {
       query.serverId = filter.serverId;
     }
     if (filter.jobName) {
-      query.jobName = filter.jobName;
+      const escapedJobName = filter.jobName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      query.jobName = { $regex: escapedJobName, $options: 'i' };
     }
     if (filter.status) {
       const statusVal = filter.status.toUpperCase();
