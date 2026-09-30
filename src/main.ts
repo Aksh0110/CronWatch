@@ -17,7 +17,15 @@ async function bootstrap() {
   );
 
   // Enable CORS so frontend (or agents) can communicate easily
-  app.enableCors();
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow all origins (staging ALB, localhost, etc.) and server-to-server calls
+      callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin'],
+    credentials: true,
+  });
 
   // Setup Swagger API documentation
   const configService = app.get(ConfigService);
