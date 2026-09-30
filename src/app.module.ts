@@ -21,9 +21,14 @@ import { RolesGuard } from './auth/guards/roles.guard';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('mongodbUri'),
-      }),
+      useFactory: (configService: ConfigService) => {
+        const uri = configService.get<string>('mongodbUri');
+        const dbName = configService.get<string>('dbName');
+        return {
+          uri,
+          ...(dbName ? { dbName } : {}),
+        };
+      },
       inject: [ConfigService],
     }),
     AgentsModule,
