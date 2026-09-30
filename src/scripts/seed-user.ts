@@ -7,6 +7,7 @@ import * as path from 'path';
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.DB_NAME || process.env.MONGODB_DB_NAME;
 
 if (!MONGODB_URI) {
   console.error('❌ MONGODB_URI is not defined in the environment variables (.env file)');
@@ -29,7 +30,9 @@ async function seed() {
   console.log(`Connecting to MongoDB...`);
   
   try {
-    await mongoose.connect(MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI as string, {
+      ...(DB_NAME ? { dbName: DB_NAME } : {}),
+    });
     console.log('✅ Connected to MongoDB.');
 
     // Define temporary schema/model for seeding

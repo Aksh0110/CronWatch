@@ -18,12 +18,12 @@ export class GetExecutionsFilterDto {
   @IsOptional()
   status?: string;
 
-  @ApiPropertyOptional({ description: 'Limit number of results' })
+  @ApiPropertyOptional({ description: 'Limit number of results', default: 100 })
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
-  limit?: number;
+  limit?: number = 100;
 
   @ApiPropertyOptional({ description: 'Skip number of results for pagination', default: 0 })
   @Type(() => Number)

@@ -11,6 +11,7 @@ import { SettingsModule } from './settings/settings.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -20,9 +21,14 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('mongodbUri'),
-      }),
+      useFactory: (configService: ConfigService) => {
+        const uri = configService.get<string>('mongodbUri');
+        const dbName = configService.get<string>('dbName');
+        return {
+          uri,
+          ...(dbName ? { dbName } : {}),
+        };
+      },
       inject: [ConfigService],
     }),
     AgentsModule,
@@ -37,6 +43,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

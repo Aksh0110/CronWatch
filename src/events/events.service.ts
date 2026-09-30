@@ -58,28 +58,26 @@ export class EventsService {
       query.serverId = filter.serverId;
     }
     if (filter.jobName) {
-      query.jobName = filter.jobName;
+      const escapedJobName = filter.jobName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      query.jobName = { $regex: escapedJobName, $options: 'i' };
     }
     if (filter.status) {
       const statusVal = filter.status.toUpperCase();
       if (statusVal === 'SUCCESS' || statusVal === 'COMPLETED') {
-        query.status = { $in: ['SUCCESS', 'COMPLETED'] };
+        query.status = { $in: ['SUCCESS', 'COMPLETED', 'completed', 'success'] };
       } else if (statusVal === 'RUNNING' || statusVal === 'STARTED') {
-        query.status = { $in: ['RUNNING', 'STARTED'] };
+        query.status = { $in: ['RUNNING', 'STARTED', 'running', 'started'] };
       } else {
-        query.status = filter.status;
+        query.status = { $regex: new RegExp(`^${filter.status}$`, 'i') };
       }
     }
 
-    const queryBuilder = this.executionModel
+    const limit = filter.limit ?? 100;
+    return this.executionModel
       .find(query)
       .sort({ createdAt: -1 })
-      .skip(filter.skip ?? 0);
-
-    if (filter.limit !== undefined && filter.limit !== null) {
-      queryBuilder.limit(filter.limit);
-    }
-
-    return queryBuilder.exec();
+      .skip(filter.skip ?? 0)
+      .limit(limit)
+      .exec();
   }
 }

@@ -28,10 +28,14 @@ export class AlertsService {
       query.serverId = filter.serverId;
     }
     if (filter.jobName) {
-      query.jobName = filter.jobName;
+      const escapedJobName = filter.jobName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      query.jobName = { $regex: escapedJobName, $options: 'i' };
     }
     if (filter.severity) {
       query.severity = filter.severity;
+    }
+    if (filter.type) {
+      query.type = filter.type;
     }
     if (filter.acknowledged !== undefined) {
       query.acknowledged = filter.acknowledged;
@@ -57,5 +61,14 @@ export class AlertsService {
     }
 
     return alert;
+  }
+
+  async acknowledgeAll(serverId?: string): Promise<{ modifiedCount: number }> {
+    const filter: any = { acknowledged: false };
+    if (serverId) {
+      filter.serverId = serverId;
+    }
+    const result = await this.alertModel.updateMany(filter, { acknowledged: true }).exec();
+    return { modifiedCount: result.modifiedCount };
   }
 }
