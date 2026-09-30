@@ -18,6 +18,11 @@ export class GetAlertsFilterDto {
   @IsOptional()
   severity?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by alert type (JOB_FAILED, HEARTBEAT_LOST, PROCESS_DOWN)' })
+  @IsString()
+  @IsOptional()
+  type?: string;
+
   @ApiPropertyOptional({ description: 'Filter by acknowledged status' })
   @Transform(({ value }) => {
     if (value === 'true' || value === true) return true;

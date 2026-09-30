@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, HttpStatus, HttpCode, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
 import { GetAlertsFilterDto } from './dto/get-alerts-filter.dto';
@@ -15,6 +15,15 @@ export class AlertsController {
   @ApiResponse({ status: 200, description: 'Successful response.', type: [Alert] })
   async getAlerts(@Query() filterDto: GetAlertsFilterDto): Promise<Alert[]> {
     return this.alertsService.findAll(filterDto);
+  }
+
+  @Patch('acknowledge-all')
+  @Roles('admin', 'write')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Acknowledge all alerts', description: 'Marks all unacknowledged alerts as acknowledged, optionally filtered by serverId' })
+  @ApiResponse({ status: 200, description: 'All matching alerts acknowledged successfully.' })
+  async acknowledgeAll(@Body() body?: { serverId?: string }) {
+    return this.alertsService.acknowledgeAll(body?.serverId);
   }
 
   @Patch(':id/acknowledge')

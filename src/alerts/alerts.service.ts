@@ -34,6 +34,9 @@ export class AlertsService {
     if (filter.severity) {
       query.severity = filter.severity;
     }
+    if (filter.type) {
+      query.type = filter.type;
+    }
     if (filter.acknowledged !== undefined) {
       query.acknowledged = filter.acknowledged;
     }
@@ -58,5 +61,14 @@ export class AlertsService {
     }
 
     return alert;
+  }
+
+  async acknowledgeAll(serverId?: string): Promise<{ modifiedCount: number }> {
+    const filter: any = { acknowledged: false };
+    if (serverId) {
+      filter.serverId = serverId;
+    }
+    const result = await this.alertModel.updateMany(filter, { acknowledged: true }).exec();
+    return { modifiedCount: result.modifiedCount };
   }
 }
